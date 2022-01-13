@@ -24,20 +24,30 @@ class AsyncTest {
   );
 
   public static CompletableFuture<Option<Ceo>> getCeoById(String ceo_id) {
-    return null;
+    CompletableFuture<Option<Ceo>> completableFuture = new CompletableFuture<>();
+    Executors.newCachedThreadPool().submit(() -> {
+      Thread.sleep(500L);
+      completableFuture.complete(ceos.toStream().find(ceo -> ceo.id.equals(ceo_id)));
+      return null;
+    });
+    return completableFuture;
   }
 
   public static CompletableFuture<Option<Enterprise>> getEnterpriseByCeoId(String ceo_id) {
-    return null;
+    CompletableFuture<Option<Enterprise>> completableFuture = new CompletableFuture<>();
+    Executors.newCachedThreadPool().submit(() -> {
+      Thread.sleep(500L);
+      completableFuture.complete(enterprises.toStream().find(enterprise -> enterprise.ceo_id.equals(ceo_id)));
+      return null;
+    });
+    return completableFuture;
   }
 
   public static CompletableFuture<Tuple2<Option<Ceo>, Option<Enterprise>>> getCEOAndEnterprise(String ceo_id) {
     CompletableFuture<Tuple2<Option<Ceo>, Option<Enterprise>>> completableFuture = new CompletableFuture<>();
     Executors.newCachedThreadPool().submit(() -> {
       Thread.sleep(500L);
-      Option<Ceo> optionCeo = ceos.toStream().find(ceo -> ceo.id.equals(ceo_id));
-      Option<Enterprise> optionEntreprise = enterprises.toStream().find(enterprise -> enterprise.ceo_id.equals(ceo_id));
-      completableFuture.complete(new Tuple2<>(optionCeo, optionEntreprise));
+      completableFuture.complete(new Tuple2<>(getCeoById(ceo_id).get(), getEnterpriseByCeoId(ceo_id).get()));
       return null;
     });
     return completableFuture;
